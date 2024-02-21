@@ -2,6 +2,7 @@ const express = require("express");
 const methodOverride = require("method-override");
 const mongoose = require("mongoose");
 const { Campground } = require("./models/campground");
+const engine = require("ejs-mate");
 
 const app = express();
 
@@ -13,6 +14,7 @@ async function main() {
 	await mongoose.connect("mongodb://127.0.0.1:27017/camp");
 }
 
+app.engine("ejs", engine);
 app.set("views", __dirname + "/views");
 app.set("view engine", "ejs");
 app.use(methodOverride("_method"));
