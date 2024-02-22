@@ -1,14 +1,14 @@
-const mongoose = require("mongoose");
-const { Campground } = require("../models/campground");
-const cities = require("./cities");
-const { descriptors, places } = require("./seedHelpers");
+import { connect, connection } from "mongoose";
+import Campground from "../models/campground";
+import cities from "./cities";
+import { descriptors, places } from "./seedHelpers";
 
 main()
 	.then(() => console.log("database connected"))
 	.catch((err) => console.log(err));
 
 async function main() {
-	await mongoose.connect("mongodb://127.0.0.1:27017/camp");
+	await connect("mongodb://127.0.0.1:27017/camp");
 }
 
 const sample = (array) => array[Math.floor(Math.random() * array.length)];
@@ -40,4 +40,4 @@ const seedDB = async () => {
 	}
 };
 
-seedDB().then(() => mongoose.connection.close());
+seedDB().then(() => connection.close());

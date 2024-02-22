@@ -1,7 +1,6 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+import { Schema as _Schema, model } from "mongoose";
 
-const CampGroundSchema = new Schema({
+const CampGroundSchema = new _Schema({
 	title: String,
 	image: String,
 	price: Number,
@@ -9,6 +8,6 @@ const CampGroundSchema = new Schema({
 	location: String,
 });
 
-const Campground = mongoose.model("Campground", CampGroundSchema);
+const Campground = model("Campground", CampGroundSchema);
 
-module.exports = { Campground };
+export default Campground;
