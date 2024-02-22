@@ -1,6 +1,6 @@
-import { Schema as _Schema, model } from "mongoose";
+import { Schema, model } from "mongoose";
 
-const CampGroundSchema = new _Schema({
+const CampGroundSchema = new Schema({
 	title: String,
 	image: String,
 	price: Number,

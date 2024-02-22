@@ -1,7 +1,7 @@
 import express, { urlencoded } from "express";
 import methodOverride from "method-override";
 import { connect } from "mongoose";
-import Campground from "./models/campground.js";
+import Campground from "./models/Campground.js";
 import engine from "ejs-mate";
 import catchAsync from "./utils/catchAsync.js";
 import path from "path";

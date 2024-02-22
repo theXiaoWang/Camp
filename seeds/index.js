@@ -1,7 +1,8 @@
-import { connect, connection } from "mongoose";
-import Campground from "../models/campground";
-import cities from "./cities";
-import { descriptors, places } from "./seedHelpers";
+import mongoose from "mongoose";
+const { connect, connection } = mongoose;
+import Campground from "../models/Campground.js";
+import cities from "./cities.js";
+import { descriptors, places } from "./seedHelpers.js";
 
 main()
 	.then(() => console.log("database connected"))
