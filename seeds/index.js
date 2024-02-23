@@ -1,5 +1,4 @@
-import mongoose from "mongoose";
-const { connect, connection } = mongoose;
+import { mongoose, connect } from "mongoose";
 import Campground from "../models/Campground.js";
 import cities from "./cities.js";
 import { descriptors, places } from "./seedHelpers.js";
@@ -41,4 +40,4 @@ const seedDB = async () => {
 	}
 };
 
-seedDB().then(() => connection.close());
+seedDB().then(() => mongoose.connection.close());

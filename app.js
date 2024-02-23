@@ -2,12 +2,13 @@ import express, { urlencoded } from "express";
 import methodOverride from "method-override";
 import { connect } from "mongoose";
 import Campground from "./models/Campground.js";
+import Review from "./models/Review.js";
 import engine from "ejs-mate";
 import catchAsync from "./utils/catchAsync.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import ExpressError from "./utils/ExpressError.js";
-import { CampgroundSchema } from "./utils/ValidateSchemas.js";
+import { CampgroundSchema, ReviewSchema } from "./utils/ValidateSchemas.js";
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.set("view engine", "ejs");
 app.use(methodOverride("_method"));
 app.use(urlencoded({ extended: true }));
 
+//Middleware for validating form data
 const validateCampground = (req, res, next) => {
 	const { error } = CampgroundSchema.validate(req.body);
 	if (error) {
@@ -36,6 +38,17 @@ const validateCampground = (req, res, next) => {
 	}
 };
 
+const validateReview = (req, res, next) => {
+	const { error } = ReviewSchema.validate(req.body);
+	if (error) {
+		const message = error.details.map((e) => e.message).join(", ");
+		throw new ExpressError(message, 400);
+	} else {
+		next();
+	}
+};
+
+//Campgrounds
 app.get("/", (req, res) => {
 	res.render("home");
 });
@@ -66,7 +79,7 @@ app.get(
 	"/campgrounds/:id",
 	catchAsync(async (req, res) => {
 		const { id } = req.params;
-		const campground = await Campground.findById(id);
+		const campground = await Campground.findById(id).populate("reviews");
 		const campgroundObject = campground.toObject();
 		res.render("campgrounds/details", { ...campgroundObject });
 	})
@@ -106,6 +119,33 @@ app.delete(
 	})
 );
 
+//Reviews
+app.post(
+	"/campgrounds/:id/reviews",
+	validateReview,
+	catchAsync(async (req, res) => {
+		const campground = await Campground.findById(req.params.id);
+		const review = new Review(req.body.review);
+		campground.reviews.push(review);
+		await campground.save();
+		await review.save();
+		res.redirect(`/campgrounds/${campground._id}`);
+	})
+);
+
+app.delete(
+	"/campgrounds/:id/reviews/:reviewId",
+	catchAsync(async (req, res) => {
+		const { id, reviewId } = req.params;
+		await Review.findByIdAndDelete(reviewId);
+		await Campground.findByIdAndUpdate(id, {
+			$pull: { reviews: reviewId },
+		});
+		res.redirect(`/campgrounds/${id}`);
+	})
+);
+
+//Middlewares, error handler
 app.all("*", (req, res, next) => next(new ExpressError("404 Not Found", 404))); // Pass the error to the next middleware);
 
 app.use((err, req, res, next) => {
