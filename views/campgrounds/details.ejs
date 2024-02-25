@@ -12,17 +12,8 @@
 				<li class="list-group-item">£<%= price %>/night</li>
 			</ul>
 			<div class="card-body">
-				<a
-					href="/campgrounds/<%= _id %>/edit"
-					class="card-link btn btn-secondary"
-					>Edit</a
-				>
-				<form
-					class="d-inline"
-					`
-					action="/campgrounds/<%= _id %>?_method=DELETE"
-					method="POST"
-				>
+				<a href="/campgrounds/<%= _id %>/edit" class="card-link btn btn-secondary">Edit</a>
+				<form class="d-inline" ` action="/campgrounds/<%= _id %>?_method=DELETE" method="POST">
 					<button class="btn btn-danger">Delete</button>
 				</form>
 			</div>
@@ -31,33 +22,14 @@
 	</div>
 	<div class="col-6">
 		<h2>Leave a Review</h2>
-		<form
-			action="/campgrounds/<%= _id %>/reviews"
-			method="POST"
-			class="mb-3 validated-form"
-			novalidate
-		>
+		<form action="/campgrounds/<%= _id %>/reviews" method="POST" class="mb-3 validated-form" novalidate>
 			<div class="mb-3">
 				<label for="rating">Rating</label>
-				<input
-					type="range"
-					class="form-range"
-					name="review[rating]"
-					id="rating"
-					min="1"
-					max="5"
-				/>
+				<input type="range" class="form-range" name="review[rating]" id="rating" min="1" max="5" />
 			</div>
 			<div class="mb-3">
 				<label class="form-label" for="body">Review</label>
-				<textarea
-					class="form-control"
-					name="review[body]"
-					id="body"
-					cols="30"
-					rows="3"
-					required
-				></textarea>
+				<textarea class="form-control" name="review[body]" id="body" cols="30" rows="3" required></textarea>
 			</div>
 			<button class="btn btn-success">Submit</button>
 		</form>
@@ -67,10 +39,7 @@
 				<div class="card-body">
 					<h5 class="card-title">Rating: <%= review.rating %></h5>
 					<p class="card-text">Review: <%= review.body %></p>
-					<form
-						action="/campgrounds/<%= _id %>/reviews/<%= review._id %>?_method=DELETE"
-						method="POST"
-					>
+					<form action="/campgrounds/<%= _id %>/reviews/<%= review._id %>?_method=DELETE" method="POST">
 						<button class="btn btn-sm btn-danger">Delete</button>
 					</form>
 				</div>

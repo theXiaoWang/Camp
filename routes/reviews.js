@@ -6,8 +6,10 @@ import Review from "../models/Review.js";
 import catchAsync from "../utils/catchAsync.js";
 import ExpressError from "../utils/ExpressError.js";
 import { ReviewSchema } from "../utils/ValidateSchemas.js";
+import { isSignedIn } from "../middleware.js";
 
-//Middleware for validating form data
+//#region Middlewares
+//Joi for validating form data
 const validateReview = (req, res, next) => {
 	const { error } = ReviewSchema.validate(req.body);
 	if (error) {
@@ -17,9 +19,11 @@ const validateReview = (req, res, next) => {
 		next();
 	}
 };
+//#endregion
 
 router.post(
 	"/",
+	isSignedIn,
 	validateReview,
 	catchAsync(async (req, res) => {
 		const campground = await Campground.findById(req.params.id);
@@ -34,6 +38,7 @@ router.post(
 
 router.delete(
 	"/:reviewId",
+	isSignedIn,
 	catchAsync(async (req, res) => {
 		const { id, reviewId } = req.params;
 		await Review.findByIdAndDelete(reviewId);

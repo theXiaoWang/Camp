@@ -15,10 +15,14 @@
 	<body class="d-flex flex-column vh-100">
 		<%- include('../partials/navbar') %>
 		<main class="container mt-5">
-			<%- include('../partials/flash') %><%- body -%>
+			<!-- flash message -->
+			<%- include('../partials/flash') %>
+			<!--  -->
+			<%- body -%>
 		</main>
 		<%- include('../partials/footer') %>
 
+		<!-- Bootstrap validation script -->
 		<script src="/scripts/ValidateForms.js"></script>
 
 		<script

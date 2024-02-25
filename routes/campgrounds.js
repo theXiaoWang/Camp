@@ -1,11 +1,13 @@
 import express from "express";
-const route = express.Router();
+const router = express.Router();
 import Campground from "../models/Campground.js";
 import catchAsync from "../utils/catchAsync.js";
 import ExpressError from "../utils/ExpressError.js";
 import { CampgroundSchema } from "../utils/ValidateSchemas.js";
+import { isSignedIn } from "../middleware.js";
 
-//Middleware for validating form data
+//#region Middlewares
+//Joi for validating form data
 const validateCampground = (req, res, next) => {
 	const { error } = CampgroundSchema.validate(req.body);
 	if (error) {
@@ -15,8 +17,9 @@ const validateCampground = (req, res, next) => {
 		next();
 	}
 };
+//#endregion
 
-route.get(
+router.get(
 	"/",
 	catchAsync(async (req, res, next) => {
 		const campgrounds = await Campground.find({});
@@ -24,12 +27,13 @@ route.get(
 	})
 );
 
-route.get("/new", (req, res) => {
+router.get("/new", isSignedIn, (req, res) => {
 	res.render("campgrounds/new");
 });
 
-route.post(
+router.post(
 	"/",
+	isSignedIn,
 	validateCampground,
 	catchAsync(async (req, res) => {
 		const campground = new Campground(req.body.campground);
@@ -39,11 +43,11 @@ route.post(
 	})
 );
 
-route.get(
+router.get(
 	"/:id",
 	catchAsync(async (req, res) => {
 		const { id } = req.params;
-		const campground = await Campground.findById(id).populate("reviews");
+		const campground = await Campground.findById(id).populate("reviews"); //it populates references with the actual documents from the referenced MongoDB collection by mongoose.
 		if (!campground) {
 			req.flash("error", "Cannot find the campground!");
 			return res.redirect("/campgrounds");
@@ -53,8 +57,9 @@ route.get(
 	})
 );
 
-route.get(
+router.get(
 	"/:id/edit",
+	isSignedIn,
 	catchAsync(async (req, res) => {
 		const { id } = req.params;
 		const campground = await Campground.findById(id);
@@ -67,24 +72,22 @@ route.get(
 	})
 );
 
-route.put(
+router.put(
 	"/:id",
+	isSignedIn,
 	validateCampground,
 	catchAsync(async (req, res) => {
 		const { id } = req.params;
 		const campgroundBody = req.body.campground;
-		const newCampground = await Campground.findByIdAndUpdate(
-			id,
-			{ ...campgroundBody },
-			{ new: true }
-		);
+		const newCampground = await Campground.findByIdAndUpdate(id, { ...campgroundBody }, { new: true });
 		req.flash("success", "Campground updated!");
 		res.redirect(`/campgrounds/${id}`);
 	})
 );
 
-route.delete(
+router.delete(
 	"/:id",
+	isSignedIn,
 	catchAsync(async (req, res) => {
 		const { id } = req.params;
 		await Campground.findByIdAndDelete(id);
@@ -93,4 +96,4 @@ route.delete(
 	})
 );
 
-export default route;
+export default router;

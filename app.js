@@ -7,9 +7,13 @@ import { fileURLToPath } from "url";
 import ExpressError from "./utils/ExpressError.js";
 import session from "express-session";
 import flash from "connect-flash";
+import passport from "passport";
+import User from "./models/User.js";
+
 //routes
-import campgrounds from "./routes/campgrounds.js";
-import reviews from "./routes/reviews.js";
+import campgroundRoutes from "./routes/campgrounds.js";
+import reviewRoutes from "./routes/reviews.js";
+import userRoutes from "./routes/users.js";
 
 const app = express();
 
@@ -39,29 +43,39 @@ const sessionConfig = {
 		maxAge: 1000 * 60 * 60 * 24 * 7,
 	},
 };
+//session should be initialized and used before strategies and flash
 app.use(session(sessionConfig));
+app.use(passport.session());
+
+//passportLocalStrategy
+passport.use(User.createStrategy());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 app.use(flash());
+
+//store in session
 app.use((req, res, next) => {
+	//On subsequent requests, Passport deserializes the user information (username, email, etc.) from the session and attaches it to the req object as req.user
+	res.locals.currentUser = req.user;
 	res.locals.success = req.flash("success");
-	next();
-});
-app.use((req, res, next) => {
 	res.locals.error = req.flash("error");
 	next();
 });
 
-//Campgrounds route
-app.use("/campgrounds", campgrounds);
-//Reviews route
-app.use("/campgrounds/:id/reviews", reviews);
+//#region Routes
+app.use("/campgrounds", campgroundRoutes);
+app.use("/campgrounds/:id/reviews", reviewRoutes);
+app.use("/", userRoutes);
+//#endregion
 
+//
 app.get("/", (req, res) => {
 	res.render("home");
 });
 
 //Middlewares, error handler
-app.all("*", (req, res, next) => next(new ExpressError("404 Not Found", 404))); // Pass the error to the next middleware);
+app.all("*", (req, res, next) => next(new ExpressError("404 Not Found", 404))); // Pass the error to the next middleware
 
 app.use((err, req, res, next) => {
 	if (!err.message) err.message = "something went wrong";
