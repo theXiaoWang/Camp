@@ -3,7 +3,7 @@ const router = express.Router();
 import User from "../models/User.js";
 import catchAsync from "../utils/catchAsync.js";
 import passport from "passport";
-import { storeReturnTo } from "../middleware.js";
+import { storeReturnTo } from "../middlewares/middlewares.js";
 
 router.get("/signUp", (req, res) => {
 	res.render("users/signUp");

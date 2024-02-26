@@ -2,22 +2,8 @@ import express from "express";
 const router = express.Router();
 import Campground from "../models/Campground.js";
 import catchAsync from "../utils/catchAsync.js";
-import ExpressError from "../utils/ExpressError.js";
-import { CampgroundSchema } from "../utils/ValidateSchemas.js";
-import { isSignedIn } from "../middleware.js";
-
-//#region Middlewares
-//Joi for validating form data
-const validateCampground = (req, res, next) => {
-	const { error } = CampgroundSchema.validate(req.body);
-	if (error) {
-		const message = error.details.map((e) => e.message).join(", ");
-		throw new ExpressError(message, 400);
-	} else {
-		next();
-	}
-};
-//#endregion
+import { isSignedIn } from "../middlewares/middlewares.js";
+import { validateCampground, isAuthor } from "../middlewares/campgroundMiddleware.js";
 
 router.get(
 	"/",
@@ -37,6 +23,7 @@ router.post(
 	validateCampground,
 	catchAsync(async (req, res) => {
 		const campground = new Campground(req.body.campground);
+		campground.author = req.user._id;
 		await campground.save();
 		req.flash("success", "New campground added!");
 		res.redirect(`/campgrounds/${campground._id}`);
@@ -47,19 +34,22 @@ router.get(
 	"/:id",
 	catchAsync(async (req, res) => {
 		const { id } = req.params;
-		const campground = await Campground.findById(id).populate("reviews"); //it populates references with the actual documents from the referenced MongoDB collection by mongoose.
+		//populates nested references with the actual documents from the referenced MongoDB collection by mongoose.
+		const campground = await Campground.findById(id)
+			.populate({ path: "reviews", populate: { path: "author" } })
+			.populate("author");
 		if (!campground) {
 			req.flash("error", "Cannot find the campground!");
 			return res.redirect("/campgrounds");
 		}
-		const campgroundObject = campground.toObject();
-		res.render("campgrounds/details", { ...campgroundObject });
+		res.render("campgrounds/details", { campground });
 	})
 );
 
 router.get(
 	"/:id/edit",
 	isSignedIn,
+	catchAsync(isAuthor),
 	catchAsync(async (req, res) => {
 		const { id } = req.params;
 		const campground = await Campground.findById(id);
@@ -67,19 +57,18 @@ router.get(
 			req.flash("error", "Cannot find the campground!");
 			return res.redirect("/campgrounds");
 		}
-		const campgroundObject = campground.toObject();
-		res.render("campgrounds/edit", { ...campgroundObject });
+		res.render("campgrounds/edit", { campground });
 	})
 );
 
 router.put(
 	"/:id",
 	isSignedIn,
+	catchAsync(isAuthor),
 	validateCampground,
 	catchAsync(async (req, res) => {
 		const { id } = req.params;
-		const campgroundBody = req.body.campground;
-		const newCampground = await Campground.findByIdAndUpdate(id, { ...campgroundBody }, { new: true });
+		const newCampground = await Campground.findByIdAndUpdate(id, { ...req.body.campground }, { new: true });
 		req.flash("success", "Campground updated!");
 		res.redirect(`/campgrounds/${id}`);
 	})
@@ -88,6 +77,7 @@ router.put(
 router.delete(
 	"/:id",
 	isSignedIn,
+	catchAsync(isAuthor),
 	catchAsync(async (req, res) => {
 		const { id } = req.params;
 		await Campground.findByIdAndDelete(id);
