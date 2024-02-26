@@ -12,18 +12,20 @@ router.get("/", catchAsync(campgrounds.index));
 
 router.get("/new", isSignedIn, campgrounds.renderNewForm);
 
-// router.post("/", isSignedIn, validateCampground, catchAsync(campgrounds.createCampground));
-
-router.post("/", upload.array("image"), (req, res) => {
-	console.log(req.body, req.files);
-	res.send("worked");
-});
+router.post("/", isSignedIn, upload.array("image"), validateCampground, catchAsync(campgrounds.createCampground));
 
 router.get("/:id", catchAsync(campgrounds.showCampground));
 
 router.get("/:id/edit", isSignedIn, catchAsync(isAuthor), catchAsync(campgrounds.renderEditForm));
 
-router.put("/:id", isSignedIn, catchAsync(isAuthor), validateCampground, catchAsync(campgrounds.editCampground));
+router.put(
+	"/:id",
+	isSignedIn,
+	catchAsync(isAuthor),
+	upload.array("image"),
+	validateCampground,
+	catchAsync(campgrounds.editCampground)
+);
 
 router.delete("/:id", isSignedIn, catchAsync(isAuthor), catchAsync(campgrounds.deleteCampground));
 

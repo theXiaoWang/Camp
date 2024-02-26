@@ -11,6 +11,8 @@ export const renderNewForm = (req, res) => {
 
 export const createCampground = async (req, res) => {
 	const campground = new Campground(req.body.campground);
+	campground.images = req.files.map((f) => ({ url: f.path, filename: f.filename }));
+	// console.log(campground);
 	campground.author = req.user._id;
 	await campground.save();
 	req.flash("success", "New campground added!");
@@ -43,6 +45,11 @@ export const renderEditForm = async (req, res) => {
 export const editCampground = async (req, res) => {
 	const { id } = req.params;
 	const newCampground = await Campground.findByIdAndUpdate(id, { ...req.body.campground }, { new: true });
+	const images = req.files.map((f) => ({ url: f.path, filename: f.filename }));
+	console.log(images);
+	newCampground.images = images;
+	// console.log(newCampground);
+	await newCampground.save();
 	req.flash("success", "Campground updated!");
 	res.redirect(`/campgrounds/${id}`);
 };
