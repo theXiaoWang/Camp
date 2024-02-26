@@ -1,54 +1,23 @@
 import express from "express";
 const router = express.Router();
-import User from "../models/User.js";
+import * as users from "../controllers/users.js";
 import catchAsync from "../utils/catchAsync.js";
 import passport from "passport";
 import { storeReturnTo } from "../middlewares/middlewares.js";
 
-router.get("/signUp", (req, res) => {
-	res.render("users/signUp");
-});
+router.get("/signUp", users.renderSignUpForm);
 
-router.post(
-	"/signUp",
-	catchAsync(async (req, res, next) => {
-		try {
-			const { username, email, password } = req.body;
-			const user = new User({ username, email });
-			const registeredUser = await User.register(user, password);
-			req.logIn(registeredUser, (err) => {
-				if (err) return next(err);
-				req.flash("success", "Welcome to Camp!");
-				res.redirect("/campgrounds");
-			});
-		} catch (error) {
-			req.flash("error", error.message);
-			res.redirect("/signUp");
-		}
-	})
-);
+router.post("/signUp", catchAsync(users.signUp));
 
-router.get("/signIn", (req, res) => {
-	res.render("users/signIn");
-});
+router.get("/signIn", users.renderSignInForm);
 
 router.post(
 	"/signIn",
 	storeReturnTo, //check if we have url stored before being signed out, and return back to the history
 	passport.authenticate("local", { failureRedirect: "/signIn", failureFlash: true }),
-	(req, res) => {
-		const redirectUrl = res.locals.returnTo || "/campgrounds";
-		req.flash("success", `Welcome, ${req.body.username}.`);
-		res.redirect(redirectUrl);
-	}
+	users.signIn
 );
 
-router.get("/signOut", (req, res, next) => {
-	req.logOut((err) => {
-		if (err) return next(err);
-		req.flash("success", "Goodbye!");
-		res.redirect("/campgrounds");
-	});
-});
+router.get("/signOut", users.signOut);
 
 export default router;
