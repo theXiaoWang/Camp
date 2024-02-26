@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV !== "production") {
+	await import("dotenv").then((dotenv) => dotenv.config());
+}
+
 import express, { urlencoded } from "express";
 import methodOverride from "method-override";
 import { connect } from "mongoose";
