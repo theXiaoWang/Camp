@@ -28,7 +28,7 @@ import userRoutes from "./routes/users.js";
 
 const app = express();
 
-const dbUrl = "mongodb://127.0.0.1:27017/camp";
+const dbUrl = process.env.DB_URL || "mongodb://127.0.0.1:27017/camp";
 
 main()
 	.then(() => console.log("database connected"))
@@ -46,12 +46,12 @@ app.set("view engine", "ejs");
 app.use(methodOverride("_method"));
 app.use(urlencoded({ extended: true }));
 
+const secret = process.env.SECRET || "Thisisasecret";
+
 const store = MongoStore.create({
 	mongoUrl: dbUrl,
 	touchAfter: 24 * 60 * 60,
-	crypto: {
-		secret: "thisshouldbeabettersecret!",
-	},
+	secret,
 });
 
 store.on("error", function (e) {
@@ -61,7 +61,7 @@ store.on("error", function (e) {
 const sessionConfig = {
 	store,
 	name: "session",
-	secret: "placeholder",
+	secret,
 	resave: false,
 	saveUninitialized: true,
 	cookie: {
@@ -110,6 +110,7 @@ app.use((err, req, res, next) => {
 	res.status(err.status || 500).render("error", { err });
 });
 
-app.listen(3000, () => {
-	console.log("Serving on port 3000");
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+	console.log(`Serving on port ${port}`);
 });
