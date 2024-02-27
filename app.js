@@ -19,6 +19,7 @@ import session from "express-session";
 import flash from "connect-flash";
 import passport from "passport";
 import User from "./models/User.js";
+import MongoStore from "connect-mongo";
 
 //routes
 import campgroundRoutes from "./routes/campgrounds.js";
@@ -27,12 +28,14 @@ import userRoutes from "./routes/users.js";
 
 const app = express();
 
+const dbUrl = "mongodb://127.0.0.1:27017/camp";
+
 main()
 	.then(() => console.log("database connected"))
 	.catch((err) => console.log(err));
 
 async function main() {
-	await connect("mongodb://127.0.0.1:27017/camp");
+	await connect(dbUrl);
 }
 
 app.engine("ejs", engine);
@@ -43,7 +46,20 @@ app.set("view engine", "ejs");
 app.use(methodOverride("_method"));
 app.use(urlencoded({ extended: true }));
 
+const store = MongoStore.create({
+	mongoUrl: dbUrl,
+	touchAfter: 24 * 60 * 60,
+	crypto: {
+		secret: "thisshouldbeabettersecret!",
+	},
+});
+
+store.on("error", function (e) {
+	console.log("Session store error", e);
+});
+
 const sessionConfig = {
+	store,
 	name: "session",
 	secret: "placeholder",
 	resave: false,
