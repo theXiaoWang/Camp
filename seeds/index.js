@@ -25,30 +25,71 @@ const textGenerator = () => {
 
 const price = Math.floor(Math.random() * 20) + 10;
 
+const imageDummies = [
+	{
+		url: "https://res.cloudinary.com/dwi7fnlkj/image/upload/v1708997307/Camp/xvbup0z0hyefemacqwzk.jpg",
+		filename: "Camp/xvbup0z0hyefemacqwzk",
+	},
+	{
+		url: "https://res.cloudinary.com/dwi7fnlkj/image/upload/v1708997298/Camp/gdsbrxwavonlqdch8vnz.jpg",
+		filename: "Camp/gdsbrxwavonlqdch8vnz",
+	},
+	{
+		url: "https://res.cloudinary.com/dwi7fnlkj/image/upload/v1708997283/Camp/bsoycxlmpveli6gefz8e.jpg",
+		filename: "Camp/bsoycxlmpveli6gefz8e",
+	},
+	{
+		url: "https://res.cloudinary.com/dwi7fnlkj/image/upload/v1708997283/Camp/bsoycxlmpveli6gefz8e.jpg",
+		filename: "Camp/jccvn9ixcqfsuwc4fdif",
+	},
+	{
+		url: "https://res.cloudinary.com/dwi7fnlkj/image/upload/v1708997261/Camp/nhbd3ohc8kbwitrtxavc.jpg",
+		filename: "Camp/nhbd3ohc8kbwitrtxavc",
+	},
+	{
+		url: "https://res.cloudinary.com/dwi7fnlkj/image/upload/v1708997252/Camp/h9c6d95xg50jwo3tqohx.jpg",
+		filename: "Camp/h9c6d95xg50jwo3tqohx",
+	},
+	{
+		url: "https://res.cloudinary.com/dwi7fnlkj/image/upload/v1708997241/Camp/euch36iddey0ghghrkeg.jpg",
+		filename: "Camp/euch36iddey0ghghrkeg",
+	},
+	{
+		url: "https://res.cloudinary.com/dwi7fnlkj/image/upload/v1708997227/Camp/ebuzlpe9sbg9hnrcvvra.jpg",
+		filename: "Camp/ebuzlpe9sbg9hnrcvvra",
+	},
+	{
+		url: "https://res.cloudinary.com/dwi7fnlkj/image/upload/v1708997198/Camp/jf0yhmqhmg7hnbrn15sr.jpg",
+		filename: "Camp/jf0yhmqhmg7hnbrn15sr",
+	},
+	{
+		url: "https://res.cloudinary.com/dwi7fnlkj/image/upload/v1708997026/Camp/z8ksrgtr243fmqkjztbi.jpg",
+		filename: "Camp/z8ksrgtr243fmqkjztbi",
+	},
+];
+
+function getRandomImages(imagesArray, numImages) {
+	const shuffled = [...imagesArray].sort(() => 0.5 - Math.random());
+	return shuffled.slice(0, numImages);
+}
+
+const selectedImages = getRandomImages(imageDummies, 3);
+
 const seedDB = async () => {
 	await Campground.deleteMany({});
 	for (let i = 0; i < 50; i++) {
-		let random1000 = Math.floor(Math.random() * 1000);
+		let random680 = Math.floor(Math.random() * 680);
 		const camp = new Campground({
 			author: "65dbc5337b2da937c981689c",
 			title: `${sample(descriptors)} ${sample(places)}`,
-			location: `${cities[random1000].city},${cities[random1000].state}`,
+			location: `${cities[random680].city},${cities[random680].country}`,
 			description: textGenerator(),
 			price,
-			images: [
-				{
-					url: "https://res.cloudinary.com/dwi7fnlkj/image/upload/v1708969889/Camp/qqtqv6n9wefvhfm1a3nw.jpg",
-					filename: "Camp/qqtqv6n9wefvhfm1a3nw",
-				},
-				{
-					url: "https://res.cloudinary.com/dwi7fnlkj/image/upload/v1708969890/Camp/qo51k5xlt7oebmdqvazu.jpg",
-					filename: "Camp/qo51k5xlt7oebmdqvazu",
-				},
-				{
-					url: "https://res.cloudinary.com/dwi7fnlkj/image/upload/v1708969891/Camp/cgfwx0wyvxbhricgy0oe.jpg",
-					filename: "Camp/cgfwx0wyvxbhricgy0oe",
-				},
-			],
+			geometry: {
+				type: "Point",
+				coordinates: [cities[random680].lng, cities[random680].lat],
+			},
+			images: getRandomImages(imageDummies, 3),
 		});
 		await camp.save();
 	}

@@ -1,6 +1,12 @@
 if (process.env.NODE_ENV !== "production") {
 	await import("dotenv").then((dotenv) => dotenv.config());
 }
+// console.log(
+// 	"Cloudinary Config in app.js :",
+// 	process.env.CLOUDINARY_CLOUD_NAME,
+// 	process.env.CLOUDINARY_KEY,
+// 	process.env.CLOUDINARY_SECRET
+// );
 
 import express, { urlencoded } from "express";
 import methodOverride from "method-override";
@@ -38,11 +44,13 @@ app.use(methodOverride("_method"));
 app.use(urlencoded({ extended: true }));
 
 const sessionConfig = {
+	name: "session",
 	secret: "placeholder",
 	resave: false,
 	saveUninitialized: true,
 	cookie: {
 		httpOnly: true,
+		// secure: true,
 		expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // store for 1 week
 		maxAge: 1000 * 60 * 60 * 24 * 7,
 	},
