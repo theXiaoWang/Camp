@@ -12,7 +12,7 @@
 </p>
 
 <div align="center" style="display: flex; flex-direction: column;">
-  <a href="https://camp-zi6h.onrender.com/">
+  <a href="https://camp-zi6h.onrender.com">
     <img src="https://img.shields.io/badge/try Camp!-39477f?style=for-the-badge&logo=google-chrome&logoColor=white">
   </a>
 </div>
